@@ -3,4 +3,4 @@
 .tox/
 _build/
 dist/
-src/*.egg-info/
+*.egg-info/
