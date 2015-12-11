@@ -8,7 +8,7 @@ requires = ['Sphinx>=0.6', 'sphinxcontrib-imagehelper>=1.1.0']
 
 setup(
     name='sphinxcontrib-cacoo',
-    version='1.0.0',
+    version='1.1.0',
     url='https://github.com/tk0miya/sphinxcontrib-cacoo/',
     license='BSD',
     author='Takeshi KOMIYA',
