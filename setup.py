@@ -9,8 +9,7 @@ requires = ['Sphinx>=0.6', 'sphinxcontrib-imagehelper>=1.1.0']
 setup(
     name='sphinxcontrib-cacoo',
     version='1.0.0',
-    url='http://bitbucket.org/birkenfeld/sphinx-contrib',
-    download_url='http://pypi.python.org/pypi/sphinxcontrib-cacoo',
+    url='https://github.com/tk0miya/sphinxcontrib-cacoo/',
     license='BSD',
     author='Takeshi KOMIYA',
     author_email='i.tkomiya@gmail.com',
