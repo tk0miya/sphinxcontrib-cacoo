@@ -8,7 +8,7 @@ requires = ['Sphinx>=1.6']
 
 setup(
     name='sphinxcontrib-cacoo',
-    version='1.1.0',
+    version='2.0.0',
     url='https://github.com/tk0miya/sphinxcontrib-cacoo/',
     license='BSD',
     author='Takeshi KOMIYA',
