@@ -78,6 +78,4 @@ cacoo_apikey
 Repository
 ==========
 
-This code is hosted by Bitbucket.
-
-  http://bitbucket.org/birkenfeld/sphinx-contrib/
+https://github.com/tk0miya/sphinxcontrib-cacoo
