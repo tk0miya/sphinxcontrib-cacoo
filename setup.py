@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 
 long_desc = open('README.rst').read()
 
-requires = ['Sphinx>=1.6', 'sphinxcontrib-imagehelper>=1.1.0']
+requires = ['Sphinx>=1.6']
 
 setup(
     name='sphinxcontrib-cacoo',
