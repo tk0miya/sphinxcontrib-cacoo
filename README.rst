@@ -1,13 +1,10 @@
 sphinxcontrib-cacoo
 ====================
-This package contains the cacoo Sphinx extension.
+This Sphinx extension allows you to embed diagrams on cacoo_ into your document::
 
-This extension enable you to embed diagrams on cacoo_ .
-Following code is sample::
+  .. image:: https://cacoo.com/diagrams/EWHRuF5Kox1AnyNL
 
-  .. cacoo-image:: [diagramid]
-
-  .. cacoo-figure:: [diagramid]
+  .. figure:: https://cacoo.com/diagrams/EWHRuF5Kox1AnyNL
 
      caption of figure
 
@@ -36,8 +33,25 @@ And set your API key to ``cacoo_apikey``::
    cacoo_apikey = 'your apikey'
 
 
-Directive
-=========
+Usage
+=====
+
+Please give an URL of caoo diagrams to image_ or figure_ directives
+as an argument::
+
+  .. image:: https://cacoo.com/diagrams/EWHRuF5Kox1AnyNL
+
+  .. figure:: https://cacoo.com/diagrams/EWHRuF5Kox1AnyNL
+
+     caption of figure
+
+.. _image: http://docutils.sourceforge.net/docs/ref/rst/directives.html#image
+.. _figure: http://docutils.sourceforge.net/docs/ref/rst/directives.html#figure
+
+Directives
+==========
+
+For backward compatibility, this extension provides following two dirctives.
 
 `.. cacoo-image:: [URL]`
 
@@ -70,14 +84,12 @@ Directive
 Configuration Options
 ======================
 
-cacoo_apikey
+**cacoo_apikey**
 
-  API key for cacoo_ 
+  The API key for cacoo_ 
 
 
 Repository
 ==========
 
-This code is hosted by Bitbucket.
-
-  http://bitbucket.org/birkenfeld/sphinx-contrib/
+https://github.com/tk0miya/sphinxcontrib-cacoo

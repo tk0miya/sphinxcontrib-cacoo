@@ -1,11 +1,20 @@
+# -*- coding: utf-8 -*-
+import os
 import re
-import json
-from time import mktime
-from urllib2 import urlopen
+from hashlib import sha1
 from email.utils import parsedate
-from sphinxcontrib.imagehelper import (
-    ImageConverter, add_image_type, add_image_directive, add_figure_directive
-)
+from time import mktime
+
+from docutils.parsers.rst.directives.images import Image
+from sphinx.directives.patches import Figure
+from sphinx.transforms.post_transforms.images import ImageConverter
+from sphinx.util import logging
+from sphinx.util import requests
+from sphinx.util.osutil import ensuredir
+
+logger = logging.getLogger(__name__)
+
+CACOO_BASEURI = 'https://cacoo.com/diagrams/'
 
 
 def cacoo_url_to_diagramid(url):
@@ -20,7 +29,7 @@ class Cacoo(object):
         URLBASE = "https://cacoo.com/api/v1/diagrams/%s.json?apiKey=%s"
         diagramid = re.sub('[#-].*', '', diagramid)  # remove sheetid
         url = URLBASE % (diagramid, self.apikey)
-        return json.loads(urlopen(url).read())
+        return requests.get(url).json()
 
     def get_last_modified(self, diagramid):
         image_info = self.get_image_info(diagramid)
@@ -30,41 +39,42 @@ class Cacoo(object):
         URLBASE = "https://cacoo.com/api/v1/diagrams/%s.png?apiKey=%s"
         diagramid = diagramid.replace('#', '-')
         url = URLBASE % (diagramid, self.apikey)
-        return urlopen(url)
+        return requests.get(url).content
 
 
-class CacooConverter(ImageConverter):
-    @property
-    def apikey(self):
-        return self.app.config.cacoo_apikey
+class CacooImageConverter(ImageConverter):
+    def match(self, node):
+        return node.get('uri', '').startswith(CACOO_BASEURI)
 
-    def get_last_modified_for(self, node):
+    def handle(self, node):
+        # type: (nodes.Node) -> None
         try:
+            cacoo = Cacoo(self.config.cacoo_apikey)
             diagramid = cacoo_url_to_diagramid(node['uri'])
-            return Cacoo(self.apikey).get_last_modified(diagramid)
-        except Exception:
-            self.warn('Fail to download cacoo image: %s (check your cacoo_apikey or diagramid)' % node['uri'])
-            return None
+            image = cacoo.get_image(diagramid)
 
-    def get_filename_for(self, node):
-        diagramid = cacoo_url_to_diagramid(node['uri'])
-        return "cacoo-%s.png" % diagramid.replace('#', '-')
+            ensuredir(os.path.join(self.imagedir, 'cacoo'))
+            digest = sha1(image).hexdigest()
 
-    def convert(self, node, filename, to):
-        try:
-            cacoo = Cacoo(self.apikey)
-            with open(to, 'wb') as fd:
-                diagramid = cacoo_url_to_diagramid(node['uri'])
-                fd.write(cacoo.get_image(diagramid).read())
-                return True
+            path = os.path.join(self.imagedir, 'cacoo', digest + '.png')
+            self.env.original_image_uri[path] = node['uri']
+
+            with open(path, 'wb') as f:
+                f.write(image)
+
+            node['candidates'].pop('?')
+            node['candidates']['image/png'] = path
+            node['uri'] = path
+            self.app.env.images.add_file(self.env.docname, path)
         except Exception:
-            self.warn('Fail to download cacoo image: %s (check your cacoo_apikey or diagramid)' % node['uri'])
+            logger.warning('Fail to download cacoo image: %s (check your cacoo_apikey or diagramid)', node['uri'])
             return False
 
 
 def setup(app):
-    add_image_type(app, 'cacoo', 'https://cacoo.com/', CacooConverter)
-    add_image_directive(app, 'cacoo')
-    add_figure_directive(app, 'cacoo')
-
     app.add_config_value('cacoo_apikey', None, 'html')
+    app.add_post_transform(CacooImageConverter)
+
+    # for backward compatibility
+    app.add_directive('cacoo-image', Image)
+    app.add_directive('cacoo-figure', Figure)
