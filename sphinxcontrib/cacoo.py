@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 import re
-import json
 from time import mktime
-from urllib2 import urlopen
 from email.utils import parsedate
+
+from sphinx.util import requests
+
 from sphinxcontrib.imagehelper import (
     ImageConverter, add_image_type, add_image_directive, add_figure_directive
 )
@@ -21,7 +22,7 @@ class Cacoo(object):
         URLBASE = "https://cacoo.com/api/v1/diagrams/%s.json?apiKey=%s"
         diagramid = re.sub('[#-].*', '', diagramid)  # remove sheetid
         url = URLBASE % (diagramid, self.apikey)
-        return json.loads(urlopen(url).read())
+        return requests.get(url).json()
 
     def get_last_modified(self, diagramid):
         image_info = self.get_image_info(diagramid)
@@ -31,7 +32,7 @@ class Cacoo(object):
         URLBASE = "https://cacoo.com/api/v1/diagrams/%s.png?apiKey=%s"
         diagramid = diagramid.replace('#', '-')
         url = URLBASE % (diagramid, self.apikey)
-        return urlopen(url)
+        return requests.get(url).content
 
 
 class CacooConverter(ImageConverter):
@@ -56,7 +57,7 @@ class CacooConverter(ImageConverter):
             cacoo = Cacoo(self.apikey)
             with open(to, 'wb') as fd:
                 diagramid = cacoo_url_to_diagramid(node['uri'])
-                fd.write(cacoo.get_image(diagramid).read())
+                fd.write(cacoo.get_image(diagramid))
                 return True
         except Exception:
             self.warn('Fail to download cacoo image: %s (check your cacoo_apikey or diagramid)' % node['uri'])
